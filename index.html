@@ -1,0 +1,390 @@
+<title>Farfars lottobok</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;600&family=Caveat:wght@500&display=swap">
+<style>
+/* Layout: a squared school notebook. The coupon grid is the hero, the ledger below is farfar's book, records last. */
+:root {
+  --paper: #f5f7f9;
+  --rule: rgba(60, 100, 150, .10);
+  --ink: #1a2433;
+  --muted: #5b6878;
+  --line: #d3dbe4;
+  --card: #ffffff;
+  --pencil: #c8322b;
+  --s1: #e2eaf4; --s2: #bfd2e9; --s3: #8fb0d8; --s4: #5784be; --s5: #2d5c9b; --s6: #15376a;
+  --on-light: #1a2433; --on-dark: #ffffff;
+  --f-display: "Young Serif", Georgia, serif;
+  --f-body: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --f-hand: "Caveat", "Comic Sans MS", cursive;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #0f151e; --rule: rgba(140, 180, 230, .07); --ink: #e6ecf3; --muted: #93a1b2; --line: #2a3442; --card: #161e2a;
+  --pencil: #ff6f61;
+  --s1: #1b2633; --s2: #203852; --s3: #2a5080; --s4: #3a6db0; --s5: #6297dc; --s6: #a8cbf7;
+  --on-light: #0f151e; --on-dark: #e6ecf3; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --paper: #0f151e; --rule: rgba(140, 180, 230, .07); --ink: #e6ecf3; --muted: #93a1b2; --line: #2a3442; --card: #161e2a;
+  --pencil: #ff6f61;
+  --s1: #1b2633; --s2: #203852; --s3: #2a5080; --s4: #3a6db0; --s5: #6297dc; --s6: #a8cbf7;
+  --on-light: #0f151e; --on-dark: #e6ecf3; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background-color: var(--paper);
+  background-image: linear-gradient(var(--rule) 1px, transparent 1px), linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink); font: 16px/1.55 var(--f-body);
+  padding-inline: 16px; padding-block: 32px 64px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 56px; }
+h1, h2 { font-family: var(--f-display); font-weight: 400; text-wrap: balance; margin: 0; line-height: 1.1; }
+h1 { font-size: clamp(2.4rem, 6vw, 3.8rem); }
+h2 { font-size: 1.75rem; }
+p { margin: 0; max-width: 62ch; }
+.eyebrow { font: 600 .75rem/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.hand { font-family: var(--f-hand); font-size: 1.35rem; color: var(--pencil); line-height: 1.2; }
+header { display: grid; gap: 14px; }
+.lede { color: var(--muted); font-size: 1.1rem; }
+.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+/* Controls */
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; background: var(--card); padding: 3px; }
+.seg button { font: 600 .9rem var(--f-body); color: var(--muted); background: none; border: 0; border-radius: 6px; padding: 7px 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.check { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; font-size: .95rem; }
+.check input { width: 18px; height: 18px; accent-color: var(--pencil); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--pencil); outline-offset: 2px; }
+
+/* Coupon */
+.board { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+@media (max-width: 760px) { .board { grid-template-columns: 1fr; } }
+.coupon { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.cell {
+  position: relative; aspect-ratio: 1; max-width: 100%; border-radius: 6px;
+  display: grid; place-items: center; align-content: center; gap: 0;
+  background: var(--card); border: 1px solid var(--line);
+  transition: background-color .25s ease;
+}
+.cell b { font: 600 clamp(1rem, 3.2vw, 1.6rem)/1 var(--f-mono); }
+.cell small { font: 400 clamp(.6rem, 1.6vw, .75rem)/1.2 var(--f-mono); opacity: .8; }
+.cell.drawn::after {
+  content: ""; position: absolute; inset: 7%; border: 2.5px solid var(--pencil); border-radius: 50%;
+  transform: rotate(-8deg) scale(1.02, .94);
+}
+.cell.drawn small { color: var(--pencil); opacity: 1; font-weight: 600; }
+.b0 { background: var(--card); color: var(--ink); }
+.b1 { background: var(--s1); color: var(--on-light); }
+.b2 { background: var(--s2); color: var(--on-light); }
+.b3 { background: var(--s3); color: var(--on-light); }
+.b4 { background: var(--s4); color: var(--on-dark); }
+.b5 { background: var(--s5); color: var(--on-dark); }
+.b6 { background: var(--s6); color: var(--on-dark); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .b5, :root:not([data-theme="light"]) .b6 { color: var(--on-light); } }
+:root[data-theme="dark"] .b5, :root[data-theme="dark"] .b6 { color: var(--on-light); }
+.cell.b5, .cell.b6 { border-color: transparent; }
+
+.side { display: grid; gap: 22px; }
+.date { font-family: var(--f-display); font-size: 1.6rem; line-height: 1.15; }
+.balls { display: flex; flex-wrap: wrap; gap: 6px; }
+.ball { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 600 .9rem var(--f-mono); border: 2px solid var(--pencil); color: var(--ink); background: var(--card); }
+.ball.x { border-style: dashed; border-color: var(--muted); }
+.row-label { font-size: .8rem; color: var(--muted); margin-bottom: 6px; }
+.legend { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.legend span { height: 12px; border-radius: 3px; border: 1px solid var(--line); }
+.legend-labels { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; font: .7rem/1.3 var(--f-mono); color: var(--muted); margin-top: 4px; }
+.coldest { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.coldest li { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; }
+.coldest .bar { height: 8px; border-radius: 0 4px 4px 0; background: var(--s5); }
+
+.scrub { display: grid; gap: 10px; margin-top: 18px; }
+.scrub-row { display: flex; gap: 8px; align-items: center; }
+.scrub input[type=range] { flex: 1; min-width: 0; accent-color: var(--pencil); }
+.btn { font: 600 .85rem var(--f-body); border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 6px; padding: 6px 12px; cursor: pointer; white-space: nowrap; }
+.btn:hover { border-color: var(--muted); }
+.ticks { display: flex; justify-content: space-between; font: .72rem var(--f-mono); color: var(--muted); }
+
+/* Ledger */
+section { display: grid; gap: 16px; }
+.ledger-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+.ledger { display: grid; grid-template-columns: 92px repeat(35, minmax(16px, 1fr)); gap: 2px; min-width: 720px; font: .68rem/1 var(--f-mono); }
+.ledger .hd { text-align: center; color: var(--muted); padding-bottom: 4px; }
+.ledger .dt { color: var(--muted); display: flex; align-items: center; white-space: nowrap; }
+.ledger .dt.sel { color: var(--pencil); font-weight: 600; }
+.lc { height: 14px; border-radius: 2px; position: relative; }
+.lc.drawn { background: var(--card); }
+.lc.drawn::after { content: ""; position: absolute; inset: 1px 2px; border-radius: 50%; background: var(--pencil); }
+.readout { min-height: 1.5em; font: .85rem var(--f-mono); color: var(--muted); }
+
+/* Records */
+.records { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; }
+@media (max-width: 760px) { .records { grid-template-columns: 1fr; } }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--line); }
+th { font: 600 .72rem var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+td.n { font: 600 1rem var(--f-mono); }
+.freq { position: relative; }
+.freq svg { width: 100%; height: auto; display: block; overflow: visible; }
+.freq text { fill: var(--muted); font: 10px var(--f-mono); }
+.freq .bar { fill: var(--s4); }
+.freq .bar:hover { fill: var(--s6); }
+.freq .exp { stroke: var(--pencil); stroke-dasharray: 4 3; stroke-width: 1.5; }
+.freq .grid { stroke: var(--line); }
+
+.note { display: grid; gap: 10px; border-top: 1px solid var(--line); padding-top: 24px; color: var(--muted); font-size: .95rem; }
+@media (prefers-reduced-motion: reduce) { .cell { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Lotto 1 och 2 · <span id="span"></span></div>
+    <h1>Farfars lottobok</h1>
+    <p class="lede">Varje nummer får en färg efter hur länge sedan det drogs. Ju mörkare blå, desto längre har det väntat. Rödpennan ringar in senaste dragningen.</p>
+    <p class="hand">Bara slumpen, såklart. Men det blir tydligt.</p>
+  </header>
+
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Vilken dragning">
+      <button id="m1" type="button" data-mode="1" aria-pressed="true">Lotto 1</button>
+      <button id="m2" type="button" data-mode="2" aria-pressed="false">Lotto 2</button>
+      <button id="m3" type="button" data-mode="3" aria-pressed="false">Båda</button>
+    </div>
+    <label class="check"><input id="extra" type="checkbox"> Räkna tilläggsnummer</label>
+  </div>
+
+  <div class="board">
+    <div>
+      <div class="coupon" id="coupon" aria-label="Nummer 1 till 35"></div>
+      <div class="scrub">
+        <div class="scrub-row">
+          <button class="btn" id="prev" type="button" aria-label="Föregående dragning">◀</button>
+          <input id="slider" type="range" min="0" max="0" value="0" aria-label="Välj dragning">
+          <button class="btn" id="next" type="button" aria-label="Nästa dragning">▶</button>
+          <button class="btn" id="play" type="button">Spela upp</button>
+        </div>
+        <div class="ticks"><span id="t0"></span><span>Dra för att spola tillbaka</span><span id="t1"></span></div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div>
+        <div class="eyebrow" id="dayname"></div>
+        <div class="date" id="date"></div>
+      </div>
+      <div id="drawn"></div>
+      <div>
+        <div class="row-label">Dragningar sedan numret senast kom</div>
+        <div class="legend" id="legend"></div>
+        <div class="legend-labels"><span>nu</span><span>1–2</span><span>3–5</span><span>6–10</span><span>11–15</span><span>16–25</span><span>26+</span></div>
+      </div>
+      <div>
+        <div class="row-label">Har väntat längst</div>
+        <ol class="coldest" id="coldest"></ol>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="eyebrow">Boken</div>
+    <h2>De senaste 60 dragningarna</h2>
+    <p>En rad per dragning, nyast överst. Röd prick betyder att numret drogs. Följ en kolumn nedåt och se hur färgen mörknar medan numret väntar.</p>
+    <div class="ledger-wrap"><div class="ledger" id="ledger"></div></div>
+    <div class="readout" id="readout">Peka på en ruta för detaljer.</div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Rekord sedan 2013</div>
+    <h2>Längsta väntan och flest dragningar</h2>
+    <div class="records">
+      <div>
+        <table>
+          <thead><tr><th>Nr</th><th>Väntade</th><th>Mellan</th></tr></thead>
+          <tbody id="droughts"></tbody>
+        </table>
+      </div>
+      <div class="freq">
+        <div class="row-label">Antal gånger dragna per nummer. Streckad linje = väntat snitt.</div>
+        <svg id="freq" role="img" aria-label="Antal dragningar per nummer"></svg>
+        <div class="readout" id="freqout"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="note">
+    <p class="hand">Slumpen har inget minne.</p>
+    <p>I varje dragning har alla 35 nummer samma chans: 7 av 35, alltså 20 procent. Ett nummer som väntat länge är inte mer "på tur" än något annat. Det är ändå fint att se mönstren som slumpen ritar.</p>
+    <p>Data: Svenska Spels publicerade resultat för Lotto onsdag och lördag, <span id="count"></span> dragningsdagar från <span id="first"></span> till <span id="last"></span>.</p>
+  </div>
+</div>
+
+<script>
+const RAW = "20130417oy1a4fujhcvqkmroe8lgt75;20130420ln25gqs7kca1tcpq37ws154;20130424oh9yr54ix6plqlvmhnzf3s1;20130427lftwbxqv9rpseo9z7wv3dqp;20130501oizvp5bm4qj63zxasd5eb6o;20130504lq65wgs7rklag5wom1hukec;20130508oeok6dbwvaznmbqlnjfghv1;20130511l7hxckn8pjm9n8cti72gljx;20130515owenglm6kxrj9jy625inka8;20130518lwdpbkghm6r79c1pw763e5b;20130522ofq2lr3pey6idy6rkwfa5x1;20130525lk5x7zrctm8ydjf8n9h34ei;20130529oxpnd2ritbw8mqnh9451obd;20130601ldpkwhmeo2zi37ftzqxyoev;20130605o8269anslegtqin1pmdla2f;20130608lu5tckr2aswpn63zvpgudhj;20130612oofvsrw9abi3k671fuagweq;20130615l7m869risvnagoecxni7uwz;20130619o3zusltaxq16bjazcexk15q;20130622lgvcbfaod34sejlhkyrd1su;20130626ou7myo42rwdb6gapufcxkrm;20130629lv4qr3l7ht9w9tkjg7rpe6l;20130703ok7uml6tpfyg9c8b3skthyr;20130706lacv4dnq85feoage1lisuvh;20130710oflsdhp7c8y5aeiv6yzcl13;20130713l7yzuc3qokxrg5pw3amoeiu;20130717ovrakj2gm17lc1lbth23d8z;20130720ldjvgc87ma4nr4vtaqi89ug;20130724oaz3sty9nud854pfvien3gw;20130727larlsum8bkxtjy5ibtsfowv;20130731ox296z7but5alm23a41g6te;20130803l1pi5xvyf8o787ovkbn2cjh;20130807oeskg8otycw3c51qrou8fgx;20130810l58pfwea4l7sw9shivfld4o;20130814o9qc1wbsexya7xpm5nbuk49;20130817l71kwogpbz3vjl9ey1qgwoz;20130821oam5fvdqig1sghjldt9c5pa;20130824lic428yn15tsixfsz54gmet;20130828oqhwejybkx767dw2fyiovnq;20130831l9g1o42m6py8extduvmi937;20130904ocbh32zsdvpt5eqc89mjsb2;20130907lbp6u8av3d7xx5w4acm7ygi;20130911odjs59iu8wcx3dgw28enmlj;20130914lbs8i4ho51zaelxdhscp4f3;20130918os1meckqfd7bgfkwxdjrhyt;20130921ltno1h2s4j76ko1fwvmz2nl;20130925oc9zydm4tpgo12sr3ny5vam;20130928l39c5nslaqvk4encz8sjoqr;20131002oal49wobi8dmy5dez9j7tn4;20131005lo7ea2y4psn6vnmp2jw7ei1;20131009o8kbnqefx71m6rmyzk34c1a;20131012l6g3tbuj8afr2wa1lh4s5ev;20131016oerytud7549o539dobwivxk;20131019lh8nr9xzjs35uz9qxnb7dt6;20131023o34oq1cetrm2c12b9mkdz7t;20131026l3ux8m52p4dj7rytev58qcf;20131030o3v12gzh7macur8qnfcko1j;20131102lqxpf1jnz9uknqjolafvxg8;20131106orzq5ptyfvclbfpxnm92k54;20131109lj5hsao98ft3hxgjnvrc4k6;20131113o2wr4upei1oy24kxtrpamqn;20131116l98276pibxkthidq2yetz8w;20131120ohkqaozm3564v52uwcnbrdi;20131123l4igq2yeslvj3eymgz4hnvd;20131127odr1cj6m3fyov8bj4ano7em;20131130l61kclrbgdfhcewxo2pdrqg;20131204or9mig75helwm5a4u8ltqwc;20131207lj58nudyfghqmlxvf1iotk5;20131211ouwoz2fyb375wqtvs2nbmrf;20131214lft8mehscp9j6a9xfw2h35q;20131218o1fp7rozwe9ypesky6jnruh;20131221lztku38fo9rhf9ac2qd7stb;20131225ocvdfu8go3kh5gyw1d7hkj4;20131228lc79ladtzjrgfm5e3s6lht1;20140101o8hxyan45tdmktnb1rzocm4;20140104lkujlcdgo9ynoz2bw4s3iyu;20140108oh3x7as9ruwzuhcy9g6kr8o;20140111ljqvrsn2f1b6fkh7ld2szue;20140115ou3vmeoifd6cgame7qun6yd;20140118la7mw5t3pdn6kmorsy468a5;20140122ontz3gkwabiylomewghs5bk;20140125lqhgiy9zoadfrkfchqebg3p;20140129owjdg7h3rop58chvqgrbums;20140201lg2x6vknbq9moyxhz5supwf;20140205owj7zr1xh4a694c3dli2xuz;20140208lvrkq4wyhltnedfqat1vyb9;20140212oy9kmzc63ihwksrbw54yznx;20140215l9ibps3xnuvzx39wzon1ifs;20140219o3m782nzr9gh84ez6j7lmuo;20140222l54swtbdu3ih2c4dyakpzbt;20140226obnipy16cwvfeaz7gpkbco2;20140301lxm1dcry538bymx5p1a7q4z;20140305o4suylafdt1k45u67qp3lwk;20140308l93gd1efprviv3mlso2gdt5;20140312oxku8sp2t4eqgvmcda8nh59;20140315l8np4bk1vtde14xugqhoame;20140319oijam1zo5q34mwfsxej6va5;20140322li7qrg3emvfl7hzgeqp19nl;20140326orjedgsxvn5ijvc18myu6qn;20140329lo8mrdw74cxk4p2wkdxgc7f;20140402oa4qe9sltxd6m3oniketasj;20140405lv8ah7k9c4l19ibjkf7et3r;20140409ocpgo13mythvdsmqltrjwcg;20140412l8w9mvqpiofjq6y29kfvr75;20140416ovrz5fn4josajnp1o25ugt4;20140419lvzsh74irj9frxyf7puhcnl;20140423op769nftmcdrdc29nsjgzpf;20140426l3xl9b4e8tif8mg49ir31sj;20140430oz2xj4ap8wcoqh3oeikdgmc;20140503lcjdiaf4txklvlwra9tyjfg;20140507otimgsedxuryz8db72y1cml;20140510l9anr4j2kfetr73ql14bgwa;20140514olzv67kw3njf5zbwy1tvn2i;20140517lrau957ve4b2yu4bqn3k1ow;20140521ocm86zq1i95urt49kq5eix1;20140524lwgkparqctevy9vi53lj1kw;20140528o3cn5fk7tbr67wr3j6y4s9f;20140531l149ytwh3rmzdogrpv71lme;20140604otl3qu72bgkhq25aw8vdftz;20140607l5qpxfm9ouczhw5oceakz4f;20140611onqkzy41h8xu5jycxr7w1sl;20140614lmlfuozt8a236tx7p5e1hyo;20140618oc14hb5fvkadov8xqtr51ej;20140621lc2bugevo8fdj8ztwmn4rbd;20140625o8dc93ivn7luhx18rjsvu4k;20140628ltj83s5dbqm1l1dirvwqytj;20140702o1iyqa4efg5r8lhyciq5ru9;20140705l82oli34uqc5lf32so791ud;20140709o3n8ao1657fmk5ihrcb3o7y;20140712lcx37gknmyef5s6mwhx4l2u;20140716o96gtj47mf5o3pkvcyljmz7;20140719lf5cplktjxu7g1zljxi9tey;20140723ojbf2ar5s8g4cagywkm7ipb;20140726l329ewyk1lnab81sqhi2ao9;20140730ou8gls6bt9mdvdzlpwsnqtb;20140802lvh7uk3spjo2hqf8skrmp7d;20140806oqlge6wbckoz2fy3rqplveh;20140809l5fgtwm7ekr18opk4fh7drt;20140813oe2cmhfg7ik8lcwe9gb4qm5;20140816lj3d8sn2lw7z2krzu18hexv;20140820o3k2w5c9o8y13lpzsh541fx;20140823lojef69ydvhxfgs6w4dalzr;20140827ob6yvz2397hst3rwemzn8bo;20140830lxslhfogrwzyzrj4hdn2ecl;20140903o5jlxvga43sfw2enqgsoa4f;20140906li8bveragu3xdzi4mkstvog;20140910oo8b5kz4dqa1whx692tc7rj;20140913l37hu1fpajlrar8t4j2if31;20140917o658hbdp7ygiexknt2bprmw;20140920lm4e2f6qjld3s4omr85bkzc;20140924ol91rxio8hwpx4tljy5vfsk;20140927l9bz7x34dfegwe8magvhsdp;20141001o37zvh52nambxfr4s6vwjt7;20141004lhlze8xm2jcwa9lqzboh51i;20141008o1pqf95ns2gyjc9zvn2s7mb;20141011l9xodcafjpmv3p9vmzebj7l;20141015o4jraqwein6bi256gwoypjd;20141018lt1hdki5vj9ou2rg6tfhcws;20141022o4iekm3faqnz36h15czolur;20141025lavr9jqodk1nnbugr5iyk3j;20141029or1kyht3o2n5q1cvbepgnwr;20141101lpyefvl8os7rz7jliwpb4dk;20141105oyxnqkv5eicuv4iap8t9ne5;20141108lu1zn5yega9i9ecr6x8mt7o;20141112ozvjq2187g9wlnj6pdwu8ch;20141115l3dyt5rcaxqvegbhysp3da2;20141119oqglv5n4ekbr14fjxwnirsh;20141122lbnvaz69r8ypn1w4m3iq29d;20141126obnjexqpm34ue2guri4o86p;20141129llm156dkzc7qtsa8jqb6e5y;20141203oe4jt1dlqsxrjgk1a3cpihm;20141206lngmdowheksz9fsagwbzi2x;20141210ozfi9j486t2klrozt3bqvw6;20141213lape3s47lyidls5udi1b4hg;20141217ok1xaecsd9mwindtfy8k1wa;20141220lsjb1g3ckqyvj72584bldkh;20141224obgvre2ckaxt8hwv3q1ocxl;20141227li4s6g1ydr9mcd3m7e4n8yo;20141231ordq1v2i9t4snxsljuv3t1m;20150103l3ybzcwxnfjgp587hkr6l3i;20150107obuxtz2ak839a7wvc5fm24l;20150110lz47xvpigbf2hb7t39vf4dp;20150114odqusoghizl6t51aiocmef9;20150117lex9w2ftmralh8a7xlnk9fp;20150121o3wogx58ap7yjeug5wmkxoi;20150124lkflijcwe97dv7gy4oatbk9;20150128oaqwpcvf329tkdcmwf9aql3;20150131l95jl2mxbizdtjienqmxbsy;20150204orcwngpvm1eogmkaxzwr5qt;20150207l2n59ziceqtjvn3udrj7a9i;20150211oe5ctk9qyg7wj13fu2q5cke;20150214l4vz9p6te521ytasnjwvopg;20150218o14ayunihrx7xuh419n6idv;20150221loz6jd1i8qlh347yzaemni2;20150225o8p2ywd7xk46zsi1wqrxd34;20150228lb94vcin6uf7tbelmy57u8r;20150304ojd8zvgf53qufa6c9msoxtb;20150307liw5uljzn1hpx4vb3ntrk61;20150311ok6ig7dyvxs2nrfkq5l43xh;20150314l843wemhsgxulxmdb1chku3;20150318ojteduw8nxpz73zcurk41nf;20150321lwg3uspr9i67hlgm7ekr5ta;20150325oa8pozqsemvl8lgkcovpwms;20150328lks3i84ohwqegotaynrvblq;20150401o8ivn4ky7reoi4jy2cm15wq;20150404luyhqvbig85w1l7r5qotc8n;20150408ouhpt9lkaobehljoeyit4uq;20150411lqwyt1d9poab1rxn29jwkv8;20150415onli9dyt3csox3o28t6dnuw;20150418lhnftr92oek6yarludwp2h1;20150422o2uskd4fga9hfwme4k5ysx8;20150425lmc84dog9bh21t5kyeuil9g;20150429ok2qjozda1eilvzaois6c53;20150502lub2ysgeih86kz1dbygeq2i;20150506os5chpi12lgrz1xhw4gqcf5;20150509lij615cqv9owu5myhwlo4gs;20150513op7m9dtk4u23befzc4mkps6;20150516ll1jhgkcv29a4otg871jh3a;20150520ohp769cmbu1qp4txkl19rjf;20150523l3yqerk416o2izdh246tasp;20150527ogn3yqadr1w7fqglk6ut1an;20150530llfm53srhn196cjxs1nudr9;20150603ozh5wfk4cqxbtmhz2l3n7os;20150606lxvtq1eh5niskev4i378u5l;20150610o64c7qks215d3a9sc6d7hvq;20150613lqyledun4b6kmhqy5jie92r;20150617o3jktc2a8pzl9cptl3orz6k;20150620lxkc567hyml4sdn1bc3fhuz;20150624oril9xtd7wau6nfze1r8dgx;20150627lftv25ajinkbtzlrcf8mkn3;20150701oaceybwkztq3z23vcoh5pe1;20150704limycpt4svzojb1vpq4dzxw;20150708oa639ow4dfbugtmh5jlwcu8;20150711lfn6v4kjd2ac67hcfj3p4qy;20150715onombi4u3yrs5wu9xbojrqy;20150718lrdh3gva87lweniaoph9b6u;20150722oo1q8jnmuphcvt48fqy5zlj;20150725lxlyhrnwct3bgntz6m7o4kh;20150729oe1cfizlb65vmzasv8i4kjq;20150801luye74qgmzbpp3afbs7e6yo;20150805o17264froalij85yvnb37pu;20150808licm16pnv8af9wioks1yml2;20150812oy3juxr4iz2msi59z8d6xkg;20150815lr3xe97jo1iuc5osbk3fp9w;20150819ox9d1smwt3vn3rbxtop7fem;20150822lm9fzrg3wnvq46av1qtpx57;20150826omuyq8owbne69gu32moykdx;20150829l8gua5z69cpfj2f48dlaqgp;20150902o3zvs2yfohid3quvpk41m7z;20150905l6v3cworftnz9ju8ei4nr6v;20150909oylq6cmjnhz58jztbfp1dku;20150912ln3ucts8yzkmacfl8vkrm12;20150916oaoy87gb5zn4nsjgbi6oyc4;20150919lvdfmwluz1yku84fzydp6v1;20150923o13wpj6bn8mhc24svje1fwk;20150926lx2krm9fbv47caempk6sgqx;20150930ow34uqk7vdsgzl5o9jxt4pu;20151003lh46vkg81ne3nhcb78i9xge;20151007om9wzoe7btxnvizmlwao74d;20151010lxfri4ym98tv1g8dzkr9fst;20151014odsyfma352z6u4gir3zysfx;20151017ltlzaqexvdmkyfzcpiwdq38;20151021omv51urifbsefgpnwxsilay;20151024luolifbe38mp5w2bdqon897;20151028oxadyz2wegl8nvuhdqwg296;20151031l9f5e2tp1n3sxizql8wr14g;20151104oqlu7pv6y5jzzvlumga97hk;20151107ldxloitbwau6qchwtd21rvy;20151111ou93jai6tzb5etan4wv5bgs;20151114lc6johz9rqxth3jpq5it6zv;20151118om68bnesh5grgypdz3fejwl;20151121lb93mehj45cwmsbfqxk1n35;20151125opjge8xqs3ono6lni7982bw;20151128lvbzchm4f2glrungbyvwpsa;20151202ovfir6ut2o9y568coxiqjhv;20151205ly2e6flcaqrkls6gkv3427f;20151209ob1lvash5ywckb2xz68lupv;20151212l2emaursl3bgnvi3a4ul56d;20151216oy53hl1s7ikj9kdf14w5va3;20151219lw7vkqoglx1j9gipbcm2qtr;20151223okvmsu4r9nj5r1uql8vgpac;20151226lcqfouzs3g9vwth2cpvn49o;20151230oskw1xzyjcvuvpqorj843ci;20160102ls2q8z6iveh9duli1keg63m;20160106ob3vlzu5rckmpuai9hyo3sf;20160109ljdmprgwni72n6vx4oukeha;20160113oei57o41pubwaj91hz6ktx8;20160116l5jixzvyu9plueq9y143kc5;20160120ovughri2jfp6wcg9do7n4tb;20160123leuxjdfhw47yf3p1ebq4xvy;20160127o5xruinlet7v4qnhd5zm8xa;20160130lxh27aor5b19j6v8xqeo31g;20160203okprosujt4lef8b3mk5x69e;20160206lr4lh5vfwy6gymqkw5abxfs;20160210o3x1zktur486vzyfa9u5o4r;20160213lkoaf3hwn94ripuvb9knae8;20160217oh24uvoqelkfwgspkoc5jh9;20160220l6vlomcrakqisw3rgokq9c7;20160224ofxpli6e9tus7rlovbhtg9s;20160227lbkdrlnhvijwfpzl6ura384;20160302o4mwzga91c67u78916qafw2;20160305l1kztfrvmpsoi95f4lhpzrd;20160309ookqcd9mil85wlea817gqdv;20160312lf2j9gxotcm7oubfwsmj23t;20160316o8k7ienzxmcjwkqty5o3niv;20160319lebnvsfgla6kkxin6c92rhd;20160323o26wft5bcvpje56vzhukq8y;20160326l46kbce5zl1vifcq9ysvwz3;20160330oopiy29b3rs5dmqx4uta1zj;20160402ly3x64ins51ezkcafilts8e;20160406oj7ype8d1rxogn4my26dq9v;20160409l368vgndtzxll5dipuso4r3;20160413ofdo59uvn4mb1su2y6ifpor;20160416loa4ir9ft6vcyaemt7u3djk;20160420ovu7wk3ja9h5g5at4cyflbr;20160423labm1vpjdyqzdhjf9u8o5ab;20160427ob49rknu8h75f342uvsg1bc;20160430l64luwvzyd37tapck825ybl;20160504ory1esb256hcsefdrpj9xh8;20160507l3lmsyienr8bfphnmx9tasg;20160511oa7tnkybds9r8rea6qo7mgh;20160514lsgxto3q1dfeode2kj9uxmg;20160518o2m7d4cals6ienkcdi5b8xz;20160521lni83rsk724vcr1t6whl9f7;20160525oajnpyirbfdog2i3etp9wa7;20160528lklaebwd7g1v6ugsy8ajxti;20160601od8tkm1s5hir6qwyk4hzj18;20160604lbuv1iqlp235q1putc58bzl;20160608ogvj6t7iaqwd9wahrfdl3k6;20160611lqz6ixbrkfmpnfwbvkmiyx1;20160615o69phloaqf24vxmzl16qrc5;20160618l3d4fosevtmg6u3bh2njk9z;20160622oqpi17usvtkwp76yjfl2xud;20160625lmp5bt3v97fy3d2bn8uljvp;20160629o1g4qxwfauedtn29v7kyxum;20160702lxfc95badzwgs34dxjm7hy9;20160706o3vy9edx81cn28q9lmxijvu;20160709llrpfiqnyahbkqv23x45iej;20160713otqbmnsrc2p3gmj2wqhaf5u;20160716l3g8yl7oadwcfjkp2ywhral;20160720obrzkvlc69qmgxlhpz5wtef;20160723lesoav1gt4fr1tx7z4luhn9;20160727o935yrxkfgmu9hxr2lgncua;20160730lfih1da4csr3w1oa6izdxvb;20160803oqenutf3d9m4vibwf7mx2dt;20160806lw3c8k1l2u4jl1tnu3fxkg8;20160810ormqv14bostyc5ot8g9yaiv;20160813louz3y5lvfchf3se5q8cbhy;20160817oc83n1fwhmpgq43s5yzbupo;20160820lsgey3lzkd4qajrtsz2qlfu;20160824o378mykipwu1l4tw9jkeupn;20160827lc87iwugt64s7sdlan6m1ew;20160831ovjsqr5efdn4xmcltp5yhfs;20160903lng5dskiuv6jyenoiua2tqr;20160907oslz1upr5qhd1f2xmo9l6u4;20160910lrcx7p83otwd71f4s5enlv6;20160914os1knizhdt97x584thnuy9s;20160917lvfpzd6hqbugdxlg6oyk5rb;20160921oumil3oxw1b7mvgo4cf6b27;20160924l6k7tprg3mcsn95hz2gsrc4;20160928o4rug9o7af1lq9gprkux27y;20161001lz5okw2mqi8cmfr7zpvwj4l;20161005o1ztdyn8vuqrt2eqm8xi1y3;20161008l624h5si7dqxtiwuc9qkeva;20161012o5jpu3cmnvy6glp9evycz24;20161015lm3qkdot4fjrpy5qhwab89z;20161019oo92q7lfi4h1zbr1w3fhgiy;20161022lio4sze8cmkqmhku6ny731v;20161026opqgkca7xu2tvhbdfile1gp;20161029l4ngh7cjkr185i74e9y8vwz;20161102ofpvl18ekdzooyxve37kq28;20161105lxhzmac97ublox9v7wbua46;20161109og5e4mxlinupd9kazj4begc;20161112lqne78b4fsltgwiylmzpkrx;20161116o4z1h3gvcmakyn54g9khr2d;20161119lqgu4izdbmesqu2y4s1r9lg;20161123oesk1zy6vapri9l1p86gzqw;20161126lo3jzr1ufqtaq7sk5xlin8z;20161130otmisq3jhwcpv7suie32qdl;20161203lgiydjfwhu4by6t8pnjxdoi;20161207opdxazw9u18cyp56wxt1cho;20161210l2it4eqzsj8d4oxbrm91pw7;20161214o58iy2apvc9klnxbu6gwcky;20161217lcxmnlwi5dq1tkzielfhs8j;20161221oq8pixrgcwvft7nqmi9yvcu;20161224lbn7j6gwy54mqhd2o83jixc;20161228oenka39tivmlrmgavo6btij;20161231lc3ndewjligp5lmoyacjqxe;20170104o48zkorg1a7d3h2jxpe7wob;20170107lk7gtrinf5e6e1tvxg2dfo7;20170111o37kt6pfdw5qthjsb736ioc;20170114lu5zg7dlj4nayfwmrp9qnsu;20170118obdg96n5cfh8aeb7z46tsw5;20170121lneupkdtyjg8hdkuwjl2t9f;20170125oilw9uc8hta285hunizy41o;20170128l5i1r2hczvn3vkqg1fltmd4;20170201oqbkz214apnoo6d4jq5bpw8;20170204lntuvl98d1fcw8yelbxkfhq;20170208ousyadho238lxpji85k9de4;20170211lkzxul7yoait6ecbwkf7y9a;20170215o745mnhrfcgo4yfdqzitpcs;20170218ls298r3oqyze2s7mpkhdrce;20170222olrm2ue54bfz4dptfja9m17;20170225ln6hoby8qfz1l142dv6tecf;20170301ooqu7edgwchi64qfi9d21br;20170304lp2b78ztlmjui8y4owves5c;20170308ojgqveb65dw81isvwxn5qhj;20170311loyvj9mgst8ksz61n8agwyq;20170315ov3iblaedh9f4mv2fs3dily;20170318lx68w2pv3fl73c4mdw6vtpb;20170322oiol2dkbt36hykcvh5zle46;20170325lp1rnghx9zoaj5a1s6u3nof;20170329oavr57xug6qtf9zphtgq31r;20170401le7zcwpxj9nukucq96dbivt;20170405odiaeh7ln1b88y12vspukof;20170408lpiztjowy4vssoajlw6pvgm;20170412o8n9wtxhcdbgl8qc5wgeboh;20170415lq4ydib1t7v3ceo6r2vsjyk;20170419onc2j9v6bz7ezm3gputj8xi;20170422lieagkq93hdtyfzsmiagw7c;20170426oyafhdpon4xera3bj4thmkv;20170429l83fbmpu1jdi6rn8xlpvki2;20170503oaqm2fet8kxlxmwez8lyu9f;20170506l91bu4adgef2zh3l8fvtwja;20170510o5c1gfsxalnv5n1i98bq4e3;20170513ll4czrj7kdynoh9kv2ei3x7;20170517o471v25fu8ts8nr6uvxtbjp;20170520lefaurpgsw1ke8ixdj6y59q;20170524ovblsn5m7o26jshfilzyu49;20170527l7p3mt6gdz1xq84t3zwxv9p;20170531o2a76xvkfcqyo49duv7gzib;20170603l8f3gqexzit5g1rfhimwzbj;20170607ox71o9mq5jilhdro3v65jzs;20170610louyfp6d7k3ieru5mg6jcxz;20170614ofm6d9a372gi6i2rmdk3jac;20170617llpug9nrzvt5anc5pdeyjhz;20170621oqwnlvuitzykemg8pafls67;20170624ln3cfyw98o17dzbm2oak9ux;20170628o23h1st6r5q8odxv16uwipj;20170701lrehft5jnxwpweqrynl1gjb;20170705ob49jcd38qz7n1y6m4tu9qi;20170708lngt5x49qo7r2rvfay7x1q4;20170712oitrqevgsync1jrmv7c6f3z;20170715ld2ivx8lcpaz6d5lqh7xfjp;20170719ooaqsw89h5e49dqo4278psz;20170722ll7cjzaxemi95v4qufcadtx;20170726ozwumcbl4jngnbkavyjzrw3;20170729lwuei5ybm4olb459xt2gc8y;20170802onahwpizm61seb91yix2wuq;20170805lub4c183w6yjnmo5zv69wyq;20170809onwjbkqmovdtgr1wmqfel4s;20170812l4b927mwy6ueiqpsdwc93hr;20170816ocy6rad4ws73hsb7xvlgude;20170819l5x1l6kv3d4aimkpqwcroa4;20170823olo3e6v9ztup6gbiws54v9f;20170826ld6359k4gvoj7m9aytl21du;20170830ooc24ax1tfblv3yhx24w9ok;20170902lz21ts86fioh4ipqfdy2gv7;20170906o2owkqx5s81fng7kmy5e2hx;20170909lcz3qugp2sryrkoib8mfn5d;20170913okmcug3yfhw4axq3emvyit6;20170916lsi2xp3q61hjah9y3pgq6or;20170920ob2wldrsu3vjjg4xoincdw7;20170923lzyoftu94ca82p51o3ur7za;20170927ouvbaodzxr39op98avugmch;20170930lrohz5dscn2ia3ejd9sgm4k;20171004oyim4oxn3zplmki9643t5rn;20171007lgnysf3d1j62pjtzunld5rh;20171011ov27g1bzhwjrr53tqubcd1g;20171014lhcxkaji9y41pkxlnh8vg21;20171018omdj67lsiwgvgrybftou486;20171021l4s2rfmjglxyampc2tsj157;20171025ontk9q6ior8uta2987b5mvk;20171028lwbdnikloc6ex8mbysow2df;20171101ouiy8cpwkbneb9f4g6lj3xs;20171104ls7znx2mr9qiu8j2xireqkp;20171108oed5q1rjt3nxbgh7yl6zux5;20171111lfy5o17mnuc3v9jeq15bpfu;20171115o2g4nqr8z5klcm92bd3e5y6;20171118lqp4792bmxjekdxnhvf6a5w;20171122o6lxrfz9md5qc51xbnushmf;20171125lcjrxph8mlgsk7pjsfarlzh;20171129oku3b68cx4arfve2nshtr5j;20171202ldgj6e9fk5v8t5bxzkj9orc;20171206oi5kp4b6soqjjrg4x6u5873;20171209l8vc6x1mwikubgk5w8nmd4c;20171213oymel1qa7oc239p2xz1sivf;20171216l14fr9j7cizpalqgn1fej6k;20171220ouo45ihs63knmruyh4v76oc;20171223ljq8fbloy4r6dcazeqm91i6;20171227op68lda45jvht2mkhy7nopf;20171230lg67t8ar54wvtya25juzbim;20180103oyo4vbmlsf5jnqrcfp9dv4y;20180106l2b5hqv9xfn7wrhcav19bp3;20180110os2vowpiyrngq85xpejv49k;20180113l9aqg8tmvelwct6xonrmup2;20180117ouhp9bl4k6gdfjq6uvchz39;20180120ld8ivmu15faw4kdjshlozpq;20180124oaf6niqkz2eshua9fistgyr;20180127la4wcir2pfjedxus79z5nqo;20180131ozxlykfb1cuvoz23u9raxec;20180203l5wyu6kd7sxodsx6f4hkret;20180207ouhe5ndwl63jnsqyjx29ahk;20180210l2isnv8qufbtrygwseqda91;20180214oqy3xt5alui9epadfhu4nil;20180217l4z8wfai172p57w1pahq86m;20180221o9q58the14ud2skvopdlxqe;20180224ls5xmcy7kw92vsigabykx3w;20180228ouosj3qytimwuhrtv2x7nzp;20180303lf9e1wzl25ys4es235vojdl;20180307ovcg9taiwqzjdr5h613ig4p;20180310lrfj2pe43m6wsi7huqj1wbx;20180314o4vqx5awjg9821fxs8ujm39;20180317l9du3r7vyl1hqvwdxmhoe39;20180321owijbmtuhqzyn6pvdixj7tb;20180324lj97mih6esocj6iyn1z5t8c;20180328oo41kpz7wet8uj8cx1i2q3a;20180331ljbhpancl2rmzcks6fluqvh;20180404ofkmyvsnjxoz569ytrp7cfo;20180407lsde32roxpf4ltzdkf6qjny;20180411olhckanmirv7ns7fkczw9a2;20180414lv7ng1jraf2wczp1y8xq9wr;20180418oylrokpmf152fjstrcg8bo3;20180421lsw6dkq8lmpv7vq8ntzy415;20180425okn7y4wv5xrscohidtk7pzq;20180428l9t3v8nr1o7wjyx8agqsmz5;20180502ongzbpo4acemsy92numi4pr;20180505lhjyu7i9gcxojlurnzx4dvg;20180509ogk4b5qy76atyvxnilmkpaj;20180512l8tl5givhwo93bg7awurpe9;20180516odl35ysec2xpnulyzfovi2m;20180519lhic4ejxld17l9tabuhsp85;20180523ogw63bvdhs47qglva35tfm6;20180526lcknwhoryax66i1b4ueankx;20180530of9uc1kj2m6svky1hzi38se;20180602lm7lrzkidqwpksx9n46utoq;20180606ooa6izsxkj9vu7sv4ahq295;20180609llk486wijdo9fq6g8udhtmo;20180613ou4gwoaqpds3h8zpbf4r7jl;20180616l9fbd6pxwm251x4tsnr82ik;20180620oft2v87l6zxm6ckbng1adi2;20180623lilobjxs2h393pwkhcd821e;20180627o4tlnaeb3hfzaixjz5qtho8;20180630lj1k8af4xnw2vihy65dscez;20180704o9f76ew4ubaofoy5ml4jn7u;20180707lz6ixm8j5k7div7kxpemnay;20180711o1oxgv8d9ubwuy1gsrptxv4;20180714lq4imawgox2bkc1ypfnzsvj;20180718oexya3gkz9qmsut8ln7qcfv;20180721locmnva7btqp25ziwnc1rxd;20180725onhe91x8tyiajfdoqgk5s9r;20180728l8fp7uoqswb44tmyrhlico5;20180801ok1jlc4vbruhh6d25cmnbky;20180804l41683vsqtuh3ihxelrtds9;20180808ojqz2c7pnekt9tkpcx7n152;20180811lrvophimyutako8ex9lj53r;20180815oeiu9m5d2o3qork4lctap7m;20180818lcib57uj1anvrdk3g5pq6z7;20180822otqh5yl29ji3dyob8g2ewup;20180825lqs17nmpgebuy91kwg4ce6l;20180829osf3x7mr169uxlws4f8o9hk;20180901luiegykq2fvh3u159pyhmvs;20180905otyguxz19l6b51nrowf92p3;20180908lls5rz4aw86do4hq7y58pt1;20180912o5m842ldvecbdtbql2ifpyh;20180915lar7my5usfcpry3wgmqsx2u;20180919ohz5c9dgval3zy152a3c8q9;20180922llxsvipr9j1ad2y8fcka5hv;20180926o2doisz7tmqgfp6c3herogm;20180929lihyr1jcp8o5urx81i6k5tq;20181003ouzhkedf8t2rac16bdr95fg;20181006ly2lshpu85n6f16ycj9vg78;20181010oxatb3sug8nm7pshz3o24j1;20181013l2eyaf9z1bpvu2zc8b47xd3;20181017oiapmsgo9vk5h2o7kryaj5u;20181020lxiafm47qj39kz8bejr1t9x;20181024o91fe4xwljztpwob9iyvdu1;20181027l6jnyfwx1b3ieipmuk1l27f;20181031ocfryjdq8sama2ldsfnyphw;20181103lwcae2tpu4i3e3aqlwrv8h5;20181107oav21giohmwqier4wny8ulh;20181110l4ag5q1pfj3uizd21qyn5uj;20181114o6shra9zvtpiz2ev3pb4y7o;20181117lkx6rz5bfjoyt5dzmyknvca;20181121oplz9c1oaqbuct2sb8rjiy7;20181124l2bqmx73zosy6gse8kmizb3;20181128ovqy9src8xhbxikd6u1y98l;20181201l47tjo8fkxdvrkzxtf9iyn4;20181205o5aghr9ubdkzh917e2a8zjl;20181208lyemptcz92nubko8n69p7ag;20181212otfu7ao2jvpsrjg1lv6y345;20181215l15bei74w8nt3f1g496xcem;20181219or58spgjiv9nx352ptes9i8;20181222la8dlf7yvhe1df31eht7m9s;20181226oq8nyzxd5pi7fhbvkxop2wn;20181229l41upiogb6zci5dfgkju3ym;20190102oz1knetbh36pgqw1ytiz7rx;20190105l2u3ckvtbwgivja3cm24t17;20190109oqjxp86v3wsrw8a6vtd2yqj;20190112lb5u7y1aileouremfzpwb2h;20190116o8y596mrlcj23c6p5bsgfty;20190119lshkzg7b3n8inkgx69ahdiq;20190123okswaclf9m1ql6ckg7594pq;20190126ls5rvdz7guynqfscv21oupg;20190130o6ysk4lpdta9wv6h7ip1jdb;20190202llhtpy4efcm5rmg5jvn9xil;20190206ojv5ut3rc1yzk9n28rzsa3t;20190209lntc6dmsgqvxghf8razmotd;20190213oqg7bunc64a23dw7g5qpu69;20190216lp18cbqfz7wxsgvl9yfk2cw;20190220oqju1es6kx5v2sp5odkmqzb;20190223la6d49wxo5zncopgd8h7w1j;20190227ordwo2tsp9n6z7lpe26jv1a;20190302lgudkc7enqm5rsnbga5vi4t;20190306otbnv58x3aiqndauq7btw1v;20190309lo1rbmlv7gpd1suv9maz5ih;20190313o7hbfkt16rmdaherczvpwk3;20190316lec2jtpf9a6rclhiqjd6y8f;20190320oudabexzmhisp2q1wysmg7k;20190323ltuizc5jm7oaxlgkcnt925o;20190327ofs5tenb8w2cqyesbx61jz5;20190330li9vpt3zsbdmemugnib6scd;20190403o2a3ye7x6hvga37mr6cnj1b;20190406lw59m2rpg38s1rxsfive8l6;20190410obhjgqp1v3c767fbsj42gew;20190413ljzfmndg1p7a3v4u61wem28;20190417owkc812v6luhm1375wypabd;20190420l8rgdusmeq3i7msfhwpo1yc;20190424o5gcr1lp3emvjzoilfpyben;20190427llzd5kh6v1pylwpfmrsh39x;20190501oakwy3dfgxcb3kryd5npiz8;20190504lnaq6dbo1le52trpof75va1;20190508o785nzadh3blvyaxdgs7w14;20190511lk3xe8t74rz52c8krym4o75;20190515opo6qd2umcgxi8uejp29kfx;20190518lic1pnsr3la6r4pl17uboiz;20190522ojk4pev1rlcmv1xzuwsh8nc;20190525lltkj6d24oqpgr5u6jdo8fn;20190529of2mvcjapk4xkg4xmdrfpiu;20190601lx9cau1mrp3wvi4pqdyu72x;20190605o5azukpyjv6cvi9enra7mdy;20190608ldn53w6gk7mpx9we4qhjokd;20190612odb2i8p9qhz6gvb6sl41c8u;20190615l7qdoru6mjzld6czljhmpag;20190619okl59pctnvjynbu18r5meja;20190622lcx8apjihdzlgjfdn39a8st;20190626oysch2v3uxo19rvpsmcfyqw;20190629lngcsohq6ti8iy9nb4g1f27;20190703o6fth8swbp244nu2s8jtq7z;20190706lt3z6wlig1f8hmrgyud4os7;20190710ovuygk2z1o7qy832g56meli;20190713lobwx4mzcfv3hk2be6py4rs;20190717o7ghw3tjzsmxrmc53yi19ns;20190720lbrl1sk6zyjwn72fa93jiwd;20190724ooaem685u2pih4b1k9w5yq3;20190727lmarbfh4l12k28lr5pngdvc;20190731o2mqakhixp4gsyvpk81t47g;20190803lnbc7lr46skgi35cfaokrs9;20190807oy3hivdz71bu3imxzncugb1;20190810lj9dcmz61uflkxh728dg3rm;20190814obcp5lqfa9o8cvea7rs5pnw;20190817l8qb7m2rvxo19lxg14pq36a;20190821ob4v9oi2el5164ujkgomctz;20190824lvc5rkohxyapcs7qzhgb6yo;20190828o1x598lqh7wprywz4u3pv1e;20190831l7oid6zratsvpfxh1iadrq5;20190904ovkmtl39ydnpe4rcvxqfbo9;20190907lg2z8ce6ojyrie8goarw1kn;20190911o8khxs1u4vfpynz7m6cs9p3;20190914lsuj2dlgvr61sk85vdanwl9;20190918odu64fgziwsq12cautng7x5;20190921lh4kdqao9n2y1ph9cqsvkda;20190925o7fxma9qt5413uxgpa6o57m;20190928l7z6vh9n4cqf83opj5gsv9x;20191002ocoeu746rbvk3qul7cmfyzj;20191005ltcm67yfb2d4nhwia9ljrgu;20191009onvzp418jws6ejgbnlmt81x;20191012l2yjbxwk1roixkoeqacdsm7;20191016oorwsaky57nq6bsorwfh5cl;20191019l5an6hetkpmush1op9i4ln2;20191023o5hctx41jypownqc41s5veu;20191026lju5vint6bzc19ub6r7tfne;20191030oov34crwjs6tle7dan8x9y6;20191102l6r3n9v5d1foz1i5y897bvm;20191106ofkcorpn53gdjakumq7542w;20191109l8lnhar32xmgu649imzekas;20191113odhsguqr8to26luowj314eb;20191116lyui69k825semqeds1nvbi4;20191120oe4a316gmljfcmra9d7ku3z;20191123lhwdtrbfqkc456g4jrxwfo7;20191127ogvjqrf95tun7kny95si1ve;20191130lpijm1qcg3b5naqr7ezu451;20191204othub9a57oepyfol46mrknu;20191207lkbpx3hz1dgtuxljqvgpdne;20191211o7my9wqic1ufxevjy9d1f6t;20191214l97lrv6ohupmxhd2z7bu8s5;20191218ogroiwkf6de8cxfyb1vwoh4;20191221ltv4qb7gfzyifwq95y6veh3;20191225ohsaevjblgki3y2nv56s41g;20191228lw19bm6sqcf71co2t8ynsk4;20200101osd97rhmu6g2pryqecluin8;20200104lhs87351r9ib4erkfbwhjgl;20200108opstim2f6hnz98g6sy13azm;20200111l1f8karyg6b4q1e4b9pd6is;20200115o5asfqm6l9j3musqeab4zi5;20200118lufxr5bs9wh4t5briqshvl2;20200122on8u5lgs4yqtc165qo4fmgl;20200125ljudnerxh8qw2jcq6zrhyx8;20200129oacbkvnjm5yi3tpg4rj67ud;20200201loe5aqil3wbyidspck4g15r;20200205ogw5j6t4nzfkgyzhjw69blp;20200208l4qlfcbm91u5tp4clw1me8x;20200212olu3it6r2cqbj9r1spczb48;20200215l9um2n1wkjpv1ixtcv6ld9q;20200219o3cza8fnwlgkefzpablwjx4;20200222luovaizr29f64h152wlcjbo;20200226oy92nesxafciscmrqyj13wp;20200229lbe4ih2udjw8zh5oln83gbk;20200304ov27rpdlfb8a4qw9ru3nvjg;20200307l71ls46anwfzcb1ofjawgyl;20200311olq6syj8247dyutw9cpx5hj;20200314lo2jc87lnkhgjr2qw5o4m6d;20200318oi5vd1plk4mqd7afox6kwm1;20200321lchvpjrg52ksh6d5xfsqy94;20200325ogurlojqhy9wmf84jqry6l9;20200328lndt8u3vp96y1w52i9oza4e;20200401ot8ju7hqo19vv1u4qdlimto;20200404lgtb76phjfn2xeh1p83stg4;20200408ok321gabpo4egov3nal24rh;20200411lrhl1bwjetd92lfho4wazv6;20200415o7mkwu8g1h2lqcz2wtrg67y;20200418l1a9xtjds4f6ejp9mx3ftqa;20200422o81rmalvyzc4nhatjq4b1ws;20200425lhi24jwrlz8gt7l1zfcu6rk;20200429otr54cp6b7xn9swthom2nfg;20200502lz8nrsyceqlbdy65szg2bq8;20200506ozjgl2e8qiun17v6ubd82gc;20200509lfg2pwlbo4s7euns247q5rv;20200513oqaxjzfyvromjl27a4eh9bd;20200516loa8t4zerqbka7ms5ifezkb;20200520odpg2b6luysxn43hoqei68y;20200523l95tjdixv3koh8oxnedvwr4;20200527o9t2vb8nfprhw5btay9qxvi;20200530ljd8yoz6nh1ma8rd5gw3sq1;20200603o9hbuiz276c8h967tzv12wp;20200606l6rfwt18i5annishwd6mcty;20200610ozap6lb45e8k7xtsnmdog86;20200613ltvpd2ehsbwnamn8xi9luf6;20200617ov3t1gfonxc5xaur9s8n612;20200620lofyi4pqmd37uz4hg3ftwp5;20200624oyh5vaeszqig7drszfpgvi5;20200627l32og75bavyflsqah25brye;20200701omsz938cjup4ivazj4x9kqf;20200704lcp6r7ekbl45gzs18md7vwl;20200708oyh4q2f3lv8if1gu4oenq9y;20200711lpmf1gxrd4ysjs3met7pc26;20200715ox5jnpe2qzio52j4wtdrznb;20200718lvblesd5u976vy48ih5fx9d;20200722oyuojp16m52kx5gk6rf87jy;20200725l7i98h5aldpk3ftzcs4vxd9;20200729ohzpebg7fklte6g9lyjvsdf;20200801lbm16tslpg3vmyp3tih1lc5;20200805ohe5s2b94cxkiqvpk4wyhfl;20200808lnp74o2da1kgz9iplf5w24e;20200812ov87pazo5myr7s4qoncfw1u;20200815luoe48ha1rqmu495wd7a8hg;20200819olq1kdb7hz483svgzdnut1y;20200822l5ihq1rtgnjsb9scrk1qaum;20200826o5mtwglvukzy972lmiwueta;20200829laxnz9sfb8326jugvd3iszl;20200902ofiwztpcukl2ze275noal8p;20200905l1jgptln4db5hdeyuaposk1;20200909onlx5awyezfvz27tl8ub9o1;20200912lpalx9fe1vc454i9ozk1hv2;20200916o35ejx12fwkm91t5qngr6ew;20200919lokevxwcp9t771l49na8bzd;20200923objvd5r8ctp1fek8ix41nzu;20200926lxq24ls7uokz9dtl3kjs1yv;20200930o6cahw3q9rg1hdl54rg9pav;20201003lmjxzq5k7ay2yogphj1lxtd;20201007ovfngxiak9bhsq6pw5ufmct;20201010ll2nqctwzhyr6g7hrnzls4i;20201014oai794pr6vh2z2dtvm94oa6;20201017l9jui2fsp6zmsyftxb7pgjn;20201021ovwz5spa8r7d8n3fbmjzp27;20201024ld2sbt97lfacbl9if7j3p5x;20201028ogvpy195zxtiea9k6rvjq4o;20201031llth4r1mezysfz3isk72gbe;20201104o6wcn9ushaljp8ybgkz9xqw;20201107lmuh62w5ldskigpmatrkjqe;20201111ouxsto9jmnzf6jyolcghf8a;20201114lbudheyi18mcgmzx5alj836;20201118o6k9xsv4mce25xez9vpa1rl;20201121luoyf4m9tvw1ach2y95mk6t;20201125oeihwj3lczx1y8mirw6voj3;20201128lzlbad36vqwpntuewsv4631;20201202odspznoviyu7y25pf9zobmg;20201205le4xl5q8u1nisi5ueh47jcd;20201209omlpgsbuw82xbila6ejdxpw;20201212l6ryj3x5g8m49zj81y7wucf;20201216obmd9ethugsw1l9kbsahjvw;20201219l4qj178d6vbs69jbync82fl;20201223omj5g7orxwchr4qk3wiad1c;20201226l4bdn9taprxlbsqr1kcu5lh;20201230oiwla76zb5ryon7kugxj3t2;20210102lewzrkmjgl1n2kveugdp51n;20210106oydt67aupng9t132yif8uj7;20210109l2qb6frpnz8xhrvf6lw3iq7;20210113oyjx5svbnerzsakmrc81pgd;20210116lrtz7s5g92yk5794blh1uvj;20210120oz34ntwh7flu63vo28rxj47;20210123l4u8fwi6vlqoisw4q5lzbx1;20210127o24twvaxc7p96t8d75pflnj;20210130lmtzcgesf8hvj76bd4h9ypm;20210203oygtu2ejvm871sxjt8dkpq7;20210206lw5yfthe9sox3i6clpjhauz;20210210owqmaclfhbgpvd9yfxjkc2z;20210213lyqeiz8bdt7gsfbkpxov8l6;20210217ou2k6exaho1lukg1c4yoe7p;20210220l786jq2ezwhkwkbstoegz1d;20210224o9kme24jzuhr3s61yn5chu8;20210227lmifp7uvlkqte4t7mfhilz5;20210303os2vp6n4m983qmyx8wvd3et;20210306lyf5mceilb1drlyh8nsqp21;20210310o9r542ecwflyhriz9sdkjxm;20210313l3md295ebqo88i6wfj4upgn;20210317os2veptn9q64itoz7h289v6;20210320l91xgyjrvbq8ghu4bsfplz7;20210324oriwhm45ogy3eocd54vnj7x;20210327lf8jbi6vawmdsl2m5ngb3oq;20210331osob4afrmdj1zi8vowqcnt2;20210403lpdmuqf7rvas7rvo9fzt348;20210407ohnmb5cszjxadsfh4ygvz7w;20210410l2qkmu56szry9uwmg3j5elx;20210414oseir3c76bkmezaq3pwmd9t;20210417l5zw2hnspf6j4s3qojyrnui;20210421oumty6f5kwxe9jyli12wzsv;20210424lj4bpev9qyh6elrxuti2qyg;20210428oq2ysjo69hud1xmqhudkzns;20210501lt3h9ge2wdp42lpzf9sivqw;20210505oyip23rftalx5zohky7g2v3;20210508lde5uwb8z9ltrphwdli25bz;20210512oy1oxp9krm5tt9kyn2f6jcl;20210515lqi3atn2cgpbxolbcveh28p;20210519odhgbyxqt971cof3skj7nyq;20210522lcbtgo5rjk3zk5guqlcdtxw;20210526o2ns19iwtmxg294aejh7od5;20210529lcsgypwq189detzkbx9gjs1;20210602oqij6wtpsnhgohq79bxrdz8;20210605lr8jpl3mnyv7rhw4z2631gb;20210609o2fwp93tz8a1k3dltx859ew;20210612lq7xz8fr9hkmijv2a46bl93;20210616oeurntdgm9xkt574budnq6a;20210619luva53lpmrwqxawni269dsq;20210623obshifk9cgr43rsxb6oqwzh;20210626lqsjg6xil7d8y41whts87vk;20210630o4dywuq2jmgt2fxc1jeq9rh;20210703li42ramj9wz1j7mnsd9eyr3;20210707obnwefrj5ya7reftlyv7k5m;20210710l2urns485ayz7f32oirvbu6;20210714o15nbst4ipgc4vs2pta5w3k;20210717l41ajs3gpue9d2gm8yevr1w;20210721ofvcnoswlih3r4h79zk8tne;20210724losk4yuh6exbv3ixfjr67sl;20210728omqvan6ysjp2qw86xc1hp94;20210731lgosq9xc8vkepn6g3ifmry4;20210804or217gczlqtfkwxicou8zyq;20210807lz5k1p7ycsx44ceusozwbqk;20210811og4kd53lu1peatq1oyfdzg7;20210814lf8nvs796uzai5sze8muhqk;20210818ons5wt48c1j9bqprnecuyxo;20210821lny948zmgpixfdiqkv8glo1;20210825o54h1vt8ygfpypvtansego7;20210828lex762umwvh1oymvsw2hu8f;20210901ooicu9bkyglvmjf6qy5rhx8;20210904l3rop75q9dzxzfv2yqsdkxl;20210908o9no8x6b74kztcxg5m8hnaz;20210911l6dieh1ulgxod3lqct9pk5x;20210915oiatyuqmwj5lupown9xbi4z;20210918ldyziqnuhsf9fpy9b4o6x8v;20210922ozc1e43isftye7dukpncvm2;20210925lzx7cpqvblkaw4zlhdn3oe9;20210929o6z7i5wdyh8jrftkzbn96ao;20211002ll6uoi8x932ma3gfto69p42;20211006ofehlns4imqudgatelqxzwc;20211009lg237o54lj1d4r6yl3tvniz;20211013ofs7jto3wqip4ernpaqomil;20211016lohnmcygrv5iowzrjbxnf2t;20211020ora2xct7hk9uvmdcku94n16;20211023lajivqnzotg8k3j8v4qidyr;20211027olctr2nx63pmzc9xgwyfhim;20211030lwbxd9izf4gsiqk9hs8er15;20211103oxb2j6epyrldmd84ywo5clg;20211106lnzj3qhpf7a5t8wip6r5lz1;20211110oiwr7sngz5oq8cx3zudsf64;20211113lhpw7gqczaxr61fsjnq74gl;20211117ovqt6moa9juw65gt7usl3d1;20211120ltvkhnqpseglohl3qe6k1dj;20211124oegzluko3vh1r3usmgj5x9a;20211127leljy6vq2ni59qhfmcxwpk3;20211201ozv84l6chnds2l817fim6hb;20211204l5u6ksvp79gtmfc2r68y4it;20211208oszc2uo6yg8hzopm1qycrs3;20211211l9e2mq63s1zl8cn7m5portu;20211215o18nfebz4da9t4ns9bmhoev;20211218lotmqkuzgchxlbwns1kjhrp;20211222o5tqh1xlcij4jphmvdxb6cs;20211225lizol216behq7bguhkd849o;20211229odgcjxkyw84n1daokf93xih;20220101ldhanr17uyf89fzhiy2s8jp;20220105ordvhg3l1qfcnlo24cbsx87;20220108lzgpo6kw7xl4nwkhuvgaq27;20220112om7vr53k28is1rwlm764cpu;20220115lufi9cn28bvt8cqj4psn176;20220119o57l4ze9uo3agdlbkeysp9x;20220122lds8hajkmyf35qrwpdye6u4;20220126oal38mpfzwk2oltvr6mc5k9;20220129lje3mqpa1oh2gcp4iyzk6wj;20220202ouogw8mk2dlxc2n7patjeqx;20220205l23odygsnfkxnfho7basiug;20220209o3kjefzi19ab7huwmdkjpxa;20220212lz8ndkovwgmldcas9umqrvn;20220216ozybltx1senquhpfgjc5ax7;20220219l4o6wcutjy1qji9af2e5qhs;20220223olgiws1c3khbngawtyxeu75;20220226l4lpm2fo78k3prwbqlkged3;20220302olzynk8ieu5cq1kdits8r5o;20220305l4ombg56f3twsvuri4x51kz;20220309oku2ae6fibtly7qkpr943sm;20220312lboqz35lemjp7cife5hnwra;20220316o7wto5xu34fny9jct4fl8is;20220319lfl2kj1vqzu6pn1b4o7atcq;20220323oxdpn82e4lm9bq6o3dr9if2;20220326lw3x4u9126tf4x2s8jgdrby;20220330oefhd5qz9tcniahdygl6snr;20220402lh94lzdi3armq4smjt7pref;20220406ofown5bkzex2q9oyxp6dac4;20220409l1jih9czdfl2svg654cbr92;20220413og1v9w86pfz4mdzv8ec7rot;20220416lpg9wznbfcidklaivr38wxg;20220420o6xv8tkeoqgn86uzdyvs3xh;20220423lcrwphgm8n5aljvoa4kgceb;20220427oarxvc7tybw4ogqd2a4n861;20220430lmnug6qr91dswb3kovcis2d;20220504o1g6vfx5sqho4eltow7rcsp;20220507lyjwp1ek3sgdrj6sebv7wtd;20220511obaijmd6xlzqp9slybuj3cq;20220514lf9gtad17xr2tci4odkhmfx;20220518olcaw43d9s8pk1rdpc6x5ne;20220521l8tmzscwa32vmhn19xidbj4;20220525ompfgus6e49i239dktnmpz5;20220528lnydksitua6jqmsdpzgef7a;20220601o9xo5lrf38whajnzo78urm5;20220604l5p7fnd4lowvrfqcldpwmt3;20220608o479djxz8buvpeujwxg4h5l;20220611lmxc6j5ef7duj2791sienzm;20220615oh6r3l8vgas2fxvp63ag81t;20220618l3iqmpa7h94wwgxt8j7qfyz;20220622oc2nmhv54pgqtp6kioya1zd;20220625lxw9yarcokgvyr3pzoqxilv;20220629ow3shu7rcotnez2giq4umlr;20220702ljbh4wef9uitx3puh6v7ayz;20220706obuxikr3hnyl3n8js7id2he;20220709llip16aezjcmfed918msqyj;20220713ot5gxjmk39z4yvji9aoxzc2;20220716lcubgasxjl625lrskxda7g6;20220720odn4k7jpyc6v85uhfyd2gcl;20220723ldnctzue4yijzadrp25nwo3;20220727oavfpcs5n72w6atbe9g7w3y;20220730lj1w9uzlpy4i3nuhkpo9v7q;20220803ok1sfwtruvnh68jz59l72xe;20220806ltem9i56qu3jt8q2md9kwug;20220810ocv3phkuf8xjkcjw583ai41;20220813l79hdqgciraw16cegktsuzi;20220817otph6yifzalbt19x2krgu58;20220820lmf8ecpi3goywcx9z3yqvir;20220824oq5y2bwachj7d3bkipn94fv;20220827lxv8lnf2to7ij361hsmao9k;20220831oghpbsacudfvfnlw4haso3q;20220903lszlq6w15uipyw87dcmi6gb;20220907odic5opy3x29vbecjmo9hut;20220910lqp2wio3j86eipot9b6n1xa;20220914otdsyfvmgiknysqzploe5b9;20220917lscmwpo9hj8bm3bnd26jhtr;20220921ouwrc8zidkqlvlmobzjyarw;20220924ll6pnhbyowrm83r96bcyajn;20220928on1fdci638brxvb8ehtofrk;20221001l9r6137zowscf9hu7m6g2aj;20221005o6dhcgpxmbsifqiy3kscbx6;20221008l1sfjaby9gc59wzjcly3gfi;20221012oavkxjtqh58n6irsu32eh5n;20221015l5k2aldyn986h3goy8snc72;20221019oefabq2k47crozks6yx4pdg;20221022l21ohcqe9kma5ljdb7okf82;20221026o7iry5p9d4ea4j13uw8meaf;20221029l8l4tn5shzeop1olf95ngkj;20221102og25xmy1noewe5wsfch7pjn;20221105li8b7usndzgeqimkfnbgo39;20221109o7xlqa5n3vpuqdrtsxigj9l;20221112lpf9tg4sknqayct57s6obfz;20221116ops7kawv268hylu4h91fktg;20221119lcz4n1jix238rb2k1dpis54;20221123oqdc32zutsgfljrwhegat3m;20221126lj4syhxcou12cnb1r75ezks;20221130ovy6nsik5mtwg9jq2olb5z7;20221203lqhcigxrlotwacubohrityn;20221207o72fjoh1bqy9kw1ixodumsg;20221210ljdms4ik1wn5as8d2wkcxge;20221214owx48kman2ucu8miw5cbh9x;20221217l314sgzy5rl7j2ylkis4ufa;20221221ooxq8gvcmuasp65ytg8aoe9;20221224lxck7iodtbv5mghjx2pto5a;20221228onc6fv2quxp5l5hd4rztgkx;20221231lbs8oplaryng2hfrz6xc5y9;20230104ooyv9idwlkbpng5x2fvhc91;20230107l7hnelbksg6qvf6zls8xwj7;20230111o564qlgueywxvl8co16if42;20230114l4a6exbghj5ro1ygplfb6ud;20230118oqocif7j6w9pjre7kzmq1vf;20230121l7xt3gzuh2y8d8w6xotz9vc;20230125o4qgevbku93pmo8ezahqtn3;20230128lt6j5xkl81rwenibsrmjvut;20230201otnwyl4jmdx6er2p4bakcsy;20230204lruseadkgjbcxz9rj5apu4c;20230208oz4ncvp96yflex5f6lqt82a;20230211l91thxeji63y2lv87eyq6ap;20230215owbr9qt7gvda261c9e7nphx;20230218lv2wj39ekdb8kiwutd1q4ro;20230222olsafhzpbd5vxht6g4lzekm;20230225lam13fpijbh21kvhnaeyg5w;20230301oufg7il5vy1x36bta72grcf;20230304lq92o7f8txra1axl75b94ip;20230308oywczvphark3165fitjwqho;20230311ld9mrvbkf1i4a3hdqflpzbw;20230315oeuv8zpics2jqmpibls3zgu;20230318l16f9ty2iup42s1mvuk7hz4;20230322olk52zhrsobgje9r3apowb5;20230325lng5tdarejs3pek3ufzns76;20230329oqgahj973y8v2zrw1h9qjpd;20230401l7yd49qf2n1c9y5dohn7l3r;20230405onu17ai4pz3k5w1bg3fdtaz;20230408l7tufb3od8celoxpeigwrvb;20230412o86ctpqynrm4r12iwlcjdth;20230415lqkmh94gcpr56ga3rc9vqk2;20230419oa846vk71rndk7bmar8cvqh;20230422lh3d5kup4w6qn9jdipr63ky;20230426opoqlm8ev91wajd639fpuhz;20230429lgj2uvewxmltxr1nfyz6mv2;20230503oxjaw7r9hcbtn4x2pwble9h;20230506lk85ywbro6de4gljihef1ks;20230510o8fsxcenvpa14g7ar1b3cd2;20230513l9t7nvrw1edkojc48mv3ypn;20230517oegtmk7ludvpctuw74l963x;20230520l3shq9jlamci9o1ykqmtrbj;20230524okfbgervy6ztvi6tomucefp;20230527lb7hevgxsrytn85h4qvswgu;20230531oiclgyxank3jftlsj81xrzi;20230603ljk569sxtd2o3ziy61tcuq9;20230607oeg1knacthqux5uf43k7qja;20230610lob9nfzpjwxr5fvnmxb7zgl;20230614o2gilaxvufjpamnel2q8dtx;20230617lorgmj8vuki4vp3ca5dgo7i;20230621o75xon6y2jplismktyozu5f;20230624lijcfaplybd534m6yzos9pg;20230628od56pwaky2hbx6ue8lna39d;20230701l3ipgqwmesohw63hxomaq9f;20230705ohsbneif4ugmbn137kzaycq;20230708lmivsr9celtxir9ughelatz;20230712od86gqol1hm5zyg1nu9lebv;20230715ledjpkq3a1923kc1ujxpfzw;20230719oda52lnmgw8fz3s76gvq5cn;20230722lzo965hsjguv3wmkq8xj56r;20230726obxpuhsiezqga4jpn5sg1kl;20230729lch3qlab1em93d81oxwny4m;20230802okqrzxhbu6etbzqlyvjcneo;20230805lib5pty2vgo83fyl89d7wc5;20230809oiu1hz9seodwma4dqz7rfps;20230812lz49bqahulc24b6ehawtx5k;20230816ohrlcteuj9g4e4podvqyg8s;20230819lhnp9douirt6ozs9hftg3k7;20230823o29a43mbgwndyjcgv4rx6kp;20230826lokg5xu1q3d7jepis83rq9u;20230830oesfj5drqoz82zhtvx3yi5e;20230902lxet8acbdm74v5s8hixpj6r;20230906odumgp7eqybnz8jy4n9f2dx;20230909lqpd753l6bgxmkuy5gej7nr;20230913o6q8awml7cjijpq968ewmh7;20230916lgyo6frqbk3pmdbihknrzxa;20230920odxh6p3wgft84lqm6hgpkja;20230923lltasobxzmk4xco46dn9vmt;20230927oakt5qlm86uekupzvf2sgwd;20230930lh5b9wl4pefql9swg4udx8o;20231004om2l6at9n5hyzyhpdk3q5i9;20231007lsat3dqm1oczocw4qhvx9sk;20231011oqf5dcm12ajzwnb8ehltu25;20231014lo5icf81emgjbz1ra3fmsig;20231018o6cxjv1tfg32qmzu57iancr;20231021lzkrqtxmjcuaa42lthyspdw;20231025odsa2wj59uvzc4xswdpu3ak;20231028l15v38dcnpwmydsp2zukchj;20231101oyzesivml362xbmtlrc4z3j;20231104l5knmradjz425djpleuqibt;20231108optv82nwo6fgb7p3xr1akyw;20231111l49mno8k3uzsl1nj7fe8isy;20231115okhxwt74sloywif1soynrtb;20231118ldz7jp4qyifwkr1vgh9lfxu;20231122o2t9lbvhjnmsq6olr2vazfc;20231125l4a7bvpofzm3m3u82bgi1fo;20231129o4pqwytz5mb1u17tihzgob8;20231202lo3xihbclq45czodx1uyq2w;20231206owa1fpg76vrsspt2ywgrfhb;20231209lq8g1t3nh75um9b4ifzwuhx;20231213orsebkgwmafi4wbvycmki15;20231216l9nr13budqjlslxz98mqnr1;20231220o4k9r6uy85qwwqa978ctmvg;20231223lmw4yzkc31gtxu9tbjsa5r2;20231227oo2lxwqczvp9k1drwq2fojl;20231230l8c1v57692jiegv68m5a1qh;20240103o9r27eyq4zvg5shwvug8qtr;20240106l6l5s2jbv1dpe67tvwdf4rn;20240110oqshcjvtakbzdy2f6n451ak;20240113lxapo8369scrwuojpfsxe5m;20240117otr8hdyg9mowz7jv8wxtq9c;20240120lrw6s5xnjiduik82ljps16q;20240124ocxj8q27f6ilm5bcg8uwzy1;20240127lgj3dw2n8vy7nr56qudh9vp;20240131o4wodm98vis272krzsb4pjh;20240203ll1h6rgy87jfv9uil27cjz8;20240207osepa19dl5ox4uj35sewztl;20240210l2vi9aq3zxflqkvx5t7o1u9;20240214ohwm8eu4ct3ru3h146to75n;20240217l8z7clugf6s47xvilam39wj;20240221o9by264grn53h89ul7cdogk;20240224ldfu5caepn17r3u1sbh9y8o;20240228o7ut9jxy28wh45fyv9tgpaz;20240302lysv75cip6jnw12bishvnmf;20240306os372u6cg4dp5lojewi2mnq;20240309lhou9ildw8r6rhqc4v59tn7;20240313oxausny4krzpxa3p6gk1mfl;20240316l6kn2f9ehag1q4g9akhns3o;20240320o36xlq5e2byot5pyqle87bj;20240323lm98wl61tiph53dfpnmzjv2;20240327ox7v5upfm462foc36t4hb7v;20240330ldw5ecr36kyl4ejoim1acd3;20240403ojgkz6we8mtxvpo9h6d7nif;20240406l23rxdqifoc6znpb2o1kyav;20240410oycw85fn6qld5f27nvoldpu;20240413lka6t7xd23vbgrjki26hnz9;20240417oq8c3jmwogrt3vx8ughopwl;20240420lgqnc59dopke29fchxv7qge;20240424oxb1wa4jismy79nh1yzf8wp;20240427ldm3ranq72wl9nmvalf8bik;20240501ot4nslr7p2b89u1o5wtkyfg;20240504ltjmyech53zolt6ia2e9x7j;20240508oegqjo8zwafm1dxjuqmobi4;20240511l8m4wfuonbjlkhlmv27xp9f;20240515oms31x2bnjd85ic17ynguw3;20240518ltyk5e83wf96j2c5a47zomx;20240522o3tfeg9vwh2rk2s8qvjxpd6;20240525l2rptuf5cae94yht1l23jvp;20240529oufgm5dek19lv17y2pxdjzo;20240601l6fm74wdus29x15wv3s6dhf;20240605ovbeasowdrygn1r65picgqt;20240608ldxksn974apmqk1julh69v5;20240612o9jg1xonbhur85my1xhuafs;20240615lj9xf6kpztg5b2yfaiorlp4;20240619okignflqbt7eahkj8rfdn1w;20240622l1picfayzl8hdzl15awubr3;20240626ouh2pojwbin4wtd7j62faqs;20240629lf7b1tikgmjy9ts3ab4xr78;20240703ouqpr2hzn97jbk3nalpjq1e;20240706lpleozydb9trk392toiuhge;20240710omi5fql391ozce17sqtnok3;20240713lxb8cagodke4fplqa43x2en;20240717og3bjawlmd8vekfroc4sg9z;20240720lucanv8b2il5tsiungq7pj1;20240724o4n967oambq2qnl8hpasmud;20240727li2ybvnjawl8e9pysvqiowd;20240731oecrxv318n5quqsajdr8exy;20240803lng8el2hv3umb9tx132mgoz;20240807oz4nh6frv31dr2unfmo7xld;20240810l7cdbo81t4malcuka3jhom6;20240814ofng8xpzstdhbpmea8hi546;20240817l2u7hmfratsgasn52dr1gqm;20240821oyrbwu6gcivso4vynkzbjr5;20240824lmi7q93rpoj4osumcdhywzp;20240828od21njgqc9kxiwbtzkr2mj6;20240831l2a9f5b31w6h9aqwdtbu4vg;20240904ob1qofujadzyzuwd38oskb9;20240907lq2lodi8f7pr1qac6shx3iu;20240911o5z4xnbsedg372ic1d5y68b;20240914lolp3u7j6cxsmta8p6ifxy1;20240918oafdky5igp8npf39u76gewb;20240921lwpurgqd4ibolkormb7ufce;20240925o9rp7xkd3oibb7lq4n8iy6p;20240928lk4dqho6ve1rfk7jwvsn48b;20241002of6buvkdio5mmvgds3pjt7r;20241005llfp1wt5ybgqxvpw6d8qtbf;20241009o19fxswent5o57s4lcivn29;20241012lcwhvxeq4l3ao62wslucrpy;20241016om3enpsj1hcwl89oabm7j1r;20241019lk8v3yibnqjlemrjcshnofi;20241023ofhgwapxs47lv7id5k2usam;20241026l4rglho67ibyqzhnpmt968o;20241030okcnpylqwh9i7s64o5vgfw9;20241102ljuxmglfasd6j5lzkgc9yna;20241106o2kr1dhszqj94im5l2qkhuc;20241109ldlqs13n6kc9fkm9t64rae7;20241113o218qnxby7jfleqa5bnr7ig;20241116l9xyepnai34mlarqs1kofen;20241120olawxobcvhjzz8abrv2cqfl;20241123lw5lv9zsdub7wyeqish81l2;20241127ohiu4cqotl1nas7qiogyx8w;20241130lplgyhq385r6it9u17k4qdx;20241204oxjarog9cky2ps3a2fmxno7;20241207leusq7nzgh86hb5v2gyd691;20241211oxja7w1evt53qifpvnmhlec;20241214l72dj8k93mcf7v93k8uyjcf;20241218old6fhknwmgs9fwth1735vc;20241221l15fghl7vnw2k6f23ge8jpr;20241225o7to3emux6vfy9zqxfj4scm;20241228ltzhbm8k3c92rscnlowb1ha;20250101ot7ax4fcgwbswlmhe8q9xy6;20250104lnim3ckqdv8fpvke4wdh2o6;20250108oxtoeq9uwbmlz4ik3m9fjhq;20250111l192sil3qkve3x4j8u2had7;20250115o7kl68nudgxso5fu1rspklz;20250118lux7zwjqk2i6nzke3osxlgw;20250122oapod65iuxsvk8svjaih7u3;20250125l4seq5ib3kuot8gu2qmajwd;20250129opbsmyvi16lqfixnk2m3zcr;20250201l7vni64zryehdoley8x2hbf;20250205ojaxbvildep448v1j7yszga;20250208lrdgch7oyv8bbcx74mw9olf;20250212obrsy1pa4i6vs5jfxq9ziu3;20250215ld56g7faivx81mi72gp6wbd;20250219odhkaui874eqqoh8pn6j35t;20250222lsjh3ryuvp9b8akcf4p63qu;20250226ob6v71ohn549od8thynwg9m;20250301lyro4gs6cq9aqze5c7pmink;20250305o5c2g4jvruf756vgolit2fm;20250308l9nt7s5excq2mpv37rncya9;20250312o9f8ucgh51md5j87s9rqwxb;20250315ls3grdetfu2xwtcn7r2pf89;20250319oc94ritlpso1m2zjr6n5qy7;20250322lhpksfvy5cjgivw8eandq3m;20250326ohmp4w6i98tx1om4wv5pqix;20250329llv6eipxcorgg18qhj7mtp5;20250402o9w7h3liskdf6q2j9hw5pdg;20250405lse39x4c2hltbt36eqa4wxu;20250409o9sy8jx1kv4e84lfikq3ped;20250412lab24z17yrwe8lrh2ep5qsf;20250416oprlkw76nxz8xpuya2l6sti;20250419luj8hc5zp4k15gsoqr6c9vu;20250423o7so39qjunwgf7dbzumxai4;20250426ln2pksjrm5f43ylh94mnz2p;20250430o5ymkxq23vtllbs58pomghi;20250503l25zn76owsax93a21gcomtv;20250507ojg69vm3etbf8rew73sjqly;20250510lfckmqn3xd2z3lvskjn96qi;20250514olg2ycezhnw3e68n9qab3cv;20250517lpruztxajhiehor8gpadilc;20250521ow4thgzvase6gia4uctw3nh;20250524lz7954ouhw21elypa4z6qgd;20250528o2xt5s9uczq3r4ovuctla7i;20250531lyaomvzjqb2p9rsu14yx3l8;20250604o64lwgd3xokmn86jk4rfhmc;20250607lrme2dyna8w5u3styq4on9p;20250611obg3yd7k9zqov4am9cufplj;20250614lf3lqo9cvuje5cyj3ql1uxk;20250618oe7fmzpvwuynnhbstcu89j2;20250621l3gznkfh4w1b9oxk2tbla8p;20250625o4y6ig3zbsveot49knmxajh;20250628lcxg4h539jm17g2qd3fy84a;20250702o625nvxzbot9znuxtsyh62r;20250705l3ge59auj2ydqduvrknsz3h;20250709o3xbeufc95anlaf8zq1wx9g;20250712lngk2pi4m7qtpf4dij7wlmy;20250716obhearjumyp38f3huyn7rmz;20250719l19ecxnzo36lergmkjyl68d;20250723oxmn7ftbdrcp732msjfpbqg;20250726lvx92yt7u4milckn9adgity;20250730o8jisnogdp2wnhdjiexp1to;20250802l95jmkpca4qd283wmi1ze9k;20250806oyz94fr3pkmed85srne4by7;20250809lu59amk63ioym72oht9ywvz;20250813ojp9isnyvhc5vnt9jme3lba;20250816lldy4i987pksiugnlds4px6;20250820odnmhxojf65tsgw8imutoa3;20250823lu3bc2fms9w5fyh5k189uvq;20250827oitgeqxl6pch49imqdo75x8;20250830la346rzdewymgacp1mqdorw;20250903oqydocka2uz6eyqikvg3xwm;20250906lwdcybahtgsntplwycb9o68;20250910os1tkum5ydw8fucveg72j4m;20250913lkm46jsr2875up4d6izrol9;20250917ov1rbh2awyl5nq5w9sxedrv;20250920lsbfngx5pejhn3hqco1dlta;20250924ogcoujpq51ekq2mzibf7hxc;20250927lq3gfrk5lhxpc29ig16zds4;20251001o6aieb1z5vsto64a251hqmy;20251004ldyn7ib8v4mhuzibkgw1cr9;20251008ocuhxswk65y2br2jidx7s9z;20251011llt1kmoh3gij826wstcqmfx;20251015ohmqjs1875cl7jwtxf59ul3;20251018lzihu5t3cmg6a78tjri5ws6;20251022oyrs2otu5c7zdpxhyub6irw;20251025lanyevt6khxcfb28hcu63st;20251029om2ghntof6wi5h4ure2wcnp;20251101lz3co54syeinmxdrcnbae8w;20251105ogjxs7o4r82a82fy5dzprj4;20251108lde2sn8ma4fg1p9vtbihglz;20251112oolhc8vp1j4im1suy9c5kx8;20251115l28exzt7fmvjs1opn2gaizy;20251119ok3e4uigarzm7dvg41t9uep;20251122liew6xadv97ykvmyhfze8aj;20251126of37bpimvyu8zjvrh7tlsdn;20251129l7k9crn3aq2ssly8q724wro;20251203ot6ukgy9l2x3nhc2fmtex5p;20251206lrp6c1b9dz2t5zkicmber7j;20251210oxksf63jqgmlhf8rzcqvgld;20251213l2bv867leosztx6jvsn1uoy;20251217ougqezkw27mhahrgb9jnzyt;20251220l8c7gae4xz1q1hmgjt2l5xq;20251224oura6bf3mgxit3mdlnf9kc2;20251227luglobfhy346pl4g69qcxw2;20251231ojxh9lkgor73gmq8w546lxb;20260103ls3w5nvkgcdqjnaoudb5i9h;20260107obxute89wm1fk86mwzg7eaj;20260110lh91qvp7gc5xqx3fgypz571;20260114o4gl7wnqy5otpxyfg6rm95e;20260117ll9qp8gazsxmpzquyw8r92f;20260121o674g9o52cqv9w2k6t5v8em;20260124lflskuew94b2ma583vhozju;20260128oh4mubvod9szw78a65b2of9;20260131lg1yjkxin6zvy73lfs6vp9g;20260204opq2th47semd8n7obrsh9fu;20260207ldcz1ay9q53ozuiaeth2smq;20260211ohxebvq4ju63bm34fwq5drc;20260214lh3e8nwibmk6x4enw7d2bl1;20260218ofyjlkn1547cfewyuqbx4vs;20260221lgsp5l1tn2wrp6n9kah8tdm;20260225ocmne7y16zv86cos4xdpl72;20260228l8hqkpigyf1vncdpjte672u;20260304oxldzia2nejkaz286jdl3rn;20260307lonmrswb3eu7d52mqsnrv1e;20260311ounjyk98covsrlqj9sozmkd;20260314lxza4pkwjd17glp4r8jdqix;20260318obmpw7c94etudjmonxz8yrk;20260321las4uxkgyh7f8m3buacfn4v;20260325o7dstwm834r6ficundreyz8;20260328liavg6hfcrb8mlq6nh3dwxk;20260401o6dlq7xkjwyhew1yb2zhvfi;20260404lz9cd1wqbguarzy1jomnes5;20260408oyg8d6n1ojrlax9qfucr6np;20260411l4fsea8xmcyd92hwgakr84y;20260415oqsycgovwhd4z8bstvgijpy;20260418lsdkga58nj1u6b1znvxaht4;20260422o5uld72qwvpoihq6tkfcbmj;20260425lk2e1f6mqzgspur83svqecy;20260429opqnfdxs2ur3if42673dnv1;20260502li748wmvbz1uxrj2l8nc5gb;20260506oqi29kr83sdbzhktcusvw8m;20260509lxhg43ezrmku5nhjvkmoucf;20260513okru41i5hyv3g3bxzk8ehqw;20260516lxtmfhown74cgb6rnjk3v8m;20260520os1xgm3nyp9fharm4gwsotn;20260523lduhveq9s8txvnfmh7i3jkt;20260527oa32knhje94fgnwufr53cm9;20260530ltmyli5e6h2nhk437uy1bqd;20260603oltnq1ugkda4grpkso8iuyw;20260606l45hfd8os7actkvz3e57jl2;20260610omceads794q1dt2osy9g1rj;20260613l34zwnckrm9j7jmatcv12xh;20260617ox2rz4py6qgbpev3gcm5zuo;20260620lgvsunroyh2xzov1xqgejkm;20260624oqxk9owdav45u3y9rk7g6oq;20260627lkpice8hrtsjj74et51vxm6;20260701opgxs4kdat9zqpj3dha64wl;20260704lklyhfnbsp31xsvuibjmtnz;20260708oqwl69xk3vpct2sxac3iy7j;20260711l21ydhnvzmi5yjxwzlhr3i7;20260715on79m83u6q1hpm5zngdo8ti;20260718l4wrcpfy5tq9k1u8d7w932q;20260722o18kb293pzifwnavcse4gut;20260725lu3vw1gtjzanqcf5xlasopw;20260729o7p2ql5j6xwi4zax9hctng1;20260801l3d4u8bny527y4j6xte5l9k;20260805og9ro7epvaz3kny1hae87jg;20260808l6pes4cqbd3uqsjiwpzcg28;20260812omtlu2bcdswh2jzx1nhe635;20260815lynpoq3x2z4gdjuhyx51bqt;20260819o84ytvzjxme2vxjuags3c81;20260822l6gtvqimljb314fo7j93rte;20260826o3whuvsod8zylybc678gotu;20260829lidoxwn2m68trfsyhxv8w9u;20260902onzt9p5cyoj1zoa6utxpyg9;20260905litprb3j2kgqdobf9shtaru;20260909ogk8cydobrzmvl3bz7tapjg;20260912lletrpwd7m98od7kwpxgean;20260916oe53c48i1aj9dy3e2zlc8ix;20260919lzpwu9bacxljds1io8qjvkc;20260923o364m9tco21bie3s7gxt8dl;20260926lo78bepfyjux7m2x3wdifbc;20260930ozcajwh4u18ndcxns9ltj53;20261003lui5hld9gbftwpyth8gvfnk";
+const C = "0123456789abcdefghijklmnopqrstuvwxyz";
+const MONTHS = ["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
+const days = RAW.split(";").map(s => {
+  const n = [...s.slice(9)].map(ch => C.indexOf(ch));
+  return { date: `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`, wed: s[8] === "o",
+    l1: n.slice(0,7), l1x: n.slice(7,11), l2: n.slice(11,18), l2x: n.slice(18,22) };
+});
+const fmt = d => { const [y,m,dd] = d.split("-"); return `${+dd} ${MONTHS[+m-1]} ${y}`; };
+const fmtShort = d => d.slice(2).replace(/-/g, "");
+
+let mode = 1, extra = false, idx = days.length - 1, ages = [], timer = null;
+
+function numbersOf(day) {
+  const out = [];
+  if (mode & 1) { out.push(...day.l1); if (extra) out.push(...day.l1x); }
+  if (mode & 2) { out.push(...day.l2); if (extra) out.push(...day.l2x); }
+  return new Set(out);
+}
+function bucket(a) { return a === 0 ? 0 : a <= 2 ? 1 : a <= 5 ? 2 : a <= 10 ? 3 : a <= 15 ? 4 : a <= 25 ? 5 : 6; }
+
+// ages[i][n]: draws since n last came, as of draw i (0 = drawn in i)
+let droughts = [], freq = [];
+function compute() {
+  const last = new Array(36).fill(-1);
+  const longest = Array.from({ length: 36 }, () => ({ len: -1 }));
+  freq = new Array(36).fill(0);
+  ages = days.map((day, i) => {
+    const set = numbersOf(day);
+    const row = new Array(36);
+    for (let n = 1; n <= 35; n++) {
+      if (set.has(n)) {
+        freq[n]++;
+        if (last[n] >= 0 && i - last[n] - 1 > longest[n].len) longest[n] = { len: i - last[n] - 1, from: last[n], to: i };
+        last[n] = i;
+      }
+      row[n] = last[n] < 0 ? i + 1 : i - last[n];
+    }
+    return row;
+  });
+  const end = days.length - 1;
+  for (let n = 1; n <= 35; n++) {
+    const open = end - last[n];
+    if (open > longest[n].len) longest[n] = { len: open, from: last[n], to: null };
+  }
+  droughts = longest.map((r, n) => ({ ...r, n })).slice(1).sort((a, b) => b.len - a.len);
+}
+
+const coupon = document.getElementById("coupon");
+const cells = [];
+for (let n = 1; n <= 35; n++) {
+  const el = document.createElement("div");
+  el.className = "cell";
+  el.innerHTML = `<b>${n}</b><small></small>`;
+  coupon.append(el); cells[n] = el;
+}
+document.getElementById("legend").innerHTML = [0,1,2,3,4,5,6].map(b => `<span class="b${b}"></span>`).join("");
+
+function renderBoard() {
+  const day = days[idx], row = ages[idx], set = numbersOf(day);
+  for (let n = 1; n <= 35; n++) {
+    const a = row[n], el = cells[n];
+    el.className = `cell b${bucket(a)}${a === 0 ? " drawn" : ""}`;
+    el.querySelector("small").textContent = a === 0 ? "nu" : a > idx ? `${a}+` : a;
+    el.setAttribute("aria-label", a === 0 ? `${n}, dragen nu` : `${n}, senast för ${a} dragningar sedan`);
+  }
+  document.getElementById("dayname").textContent = day.wed ? "Onsdag" : "Lördag";
+  document.getElementById("date").textContent = fmt(day.date);
+  const parts = [];
+  const ballRow = (label, main, x) => `<div><div class="row-label">${label}</div><div class="balls">${main.map(n => `<span class="ball">${n}</span>`).join("")}${extra ? x.map(n => `<span class="ball x" title="Tilläggsnummer">${n}</span>`).join("") : ""}</div></div>`;
+  if (mode & 1) parts.push(ballRow("Lotto 1", [...day.l1].sort((a,b)=>a-b), [...day.l1x].sort((a,b)=>a-b)));
+  if (mode & 2) parts.push(ballRow("Lotto 2", [...day.l2].sort((a,b)=>a-b), [...day.l2x].sort((a,b)=>a-b)));
+  document.getElementById("drawn").innerHTML = `<div style="display:grid;gap:12px">${parts.join("")}</div>`;
+
+  const cold = Array.from({ length: 35 }, (_, i) => ({ n: i + 1, a: row[i + 1] })).sort((p, q) => q.a - p.a).slice(0, 5);
+  const max = cold[0].a || 1;
+  document.getElementById("coldest").innerHTML = cold.map(c =>
+    `<li><span class="ball" style="border-color:var(--s5)">${c.n}</span><span class="bar" style="width:${Math.max(6, c.a / max * 100)}%"></span><span class="num">${c.a} drag</span></li>`).join("");
+  document.getElementById("slider").value = idx;
+  renderLedger();
+}
+
+const ledger = document.getElementById("ledger");
+const readout = document.getElementById("readout");
+function renderLedger() {
+  const rows = 60, start = Math.max(0, idx - rows + 1);
+  let html = `<div class="hd"></div>` + Array.from({ length: 35 }, (_, i) => `<div class="hd">${i + 1}</div>`).join("");
+  for (let i = idx; i >= start; i--) {
+    html += `<div class="dt${i === idx ? " sel" : ""}">${fmtShort(days[i].date)} ${days[i].wed ? "ons" : "lör"}</div>`;
+    for (let n = 1; n <= 35; n++) {
+      const a = ages[i][n];
+      html += `<div class="lc b${bucket(a)}${a === 0 ? " drawn" : ""}" data-i="${i}" data-n="${n}"></div>`;
+    }
+  }
+  ledger.innerHTML = html;
+}
+ledger.addEventListener("pointerover", e => {
+  const t = e.target.closest(".lc"); if (!t) return;
+  const i = +t.dataset.i, n = +t.dataset.n, a = ages[i][n];
+  readout.textContent = `Nr ${n} · ${fmt(days[i].date)} · ${a === 0 ? "dragen" : `senast för ${a} dragningar sedan`}`;
+});
+ledger.addEventListener("click", e => {
+  const t = e.target.closest(".lc"); if (!t) return;
+  stop(); idx = +t.dataset.i; renderBoard();
+});
+
+function renderRecords() {
+  document.getElementById("droughts").innerHTML = droughts.slice(0, 8).map(d =>
+    `<tr><td class="n">${d.n}</td><td class="num">${d.len} dragningar</td><td>${fmt(days[d.from].date)} till ${d.to === null ? "<span style='color:var(--pencil)'>väntar fortfarande</span>" : fmt(days[d.to].date)}</td></tr>`).join("");
+
+  const svg = document.getElementById("freq");
+  const W = 420, H = 200, L = 30, B = 20, T = 8;
+  const max = Math.max(...freq.slice(1));
+  const per = (mode === 3 ? 2 : 1) * (extra ? 11 : 7);
+  const exp = days.length * per / 35;
+  const top = Math.ceil(max * 1.05 / 50) * 50;
+  const y = v => T + (H - T - B) * (1 - v / top);
+  const bw = (W - L) / 35;
+  let s = `<line class="grid" x1="${L}" x2="${W}" y1="${y(0)}" y2="${y(0)}"/>`;
+  for (let v = 0; v <= top; v += top / 4) s += `<text x="${L - 4}" y="${y(v) + 3}" text-anchor="end">${Math.round(v)}</text>${v ? `<line class="grid" x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" opacity=".5"/>` : ""}`;
+  for (let n = 1; n <= 35; n++) {
+    const x = L + (n - 1) * bw + 1, h = y(0) - y(freq[n]);
+    s += `<rect class="bar" data-n="${n}" x="${x}" y="${y(freq[n])}" width="${bw - 2}" height="${h}" rx="2"><title>${n}: ${freq[n]} gånger</title></rect>`;
+    if (n === 1 || n % 5 === 0) s += `<text x="${x + (bw - 2) / 2}" y="${H - 6}" text-anchor="middle">${n}</text>`;
+  }
+  s += `<line class="exp" x1="${L}" x2="${W}" y1="${y(exp)}" y2="${y(exp)}"/>`;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = s;
+  const lo = freq.indexOf(Math.min(...freq.slice(1)), 1), hi = freq.indexOf(max, 1);
+  document.getElementById("freqout").textContent = `Flest: ${hi} (${max} gånger). Minst: ${lo} (${freq[lo]} gånger). Snitt ${Math.round(exp)}.`;
+}
+document.getElementById("freq").addEventListener("pointerover", e => {
+  const t = e.target.closest(".bar"); if (!t) return;
+  const n = +t.dataset.n;
+  document.getElementById("freqout").textContent = `Nummer ${n}: dragen ${freq[n]} gånger sedan ${fmt(days[0].date)}.`;
+});
+
+function all() { compute(); renderBoard(); renderRecords(); }
+
+const slider = document.getElementById("slider");
+slider.max = days.length - 1;
+slider.addEventListener("input", () => { stop(); idx = +slider.value; renderBoard(); });
+document.getElementById("prev").onclick = () => { stop(); idx = Math.max(0, idx - 1); renderBoard(); };
+document.getElementById("next").onclick = () => { stop(); idx = Math.min(days.length - 1, idx + 1); renderBoard(); };
+const playBtn = document.getElementById("play");
+function stop() { clearInterval(timer); timer = null; playBtn.textContent = "Spela upp"; }
+playBtn.onclick = () => {
+  if (timer) return stop();
+  if (idx >= days.length - 1) idx = Math.max(0, days.length - 105);
+  playBtn.textContent = "Pausa";
+  timer = setInterval(() => { if (idx >= days.length - 1) return stop(); idx++; renderBoard(); }, 260);
+};
+document.querySelectorAll(".seg button").forEach(b => b.onclick = () => {
+  mode = +b.dataset.mode;
+  document.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  all();
+});
+document.getElementById("extra").onchange = e => { extra = e.target.checked; all(); };
+
+document.getElementById("t0").textContent = days[0].date.slice(0, 4);
+document.getElementById("t1").textContent = days.at(-1).date.slice(0, 4);
+document.getElementById("span").textContent = `${days[0].date.slice(0,4)}–${days.at(-1).date.slice(0,4)}`;
+document.getElementById("count").textContent = days.length.toLocaleString("sv-SE");
+document.getElementById("first").textContent = fmt(days[0].date);
+document.getElementById("last").textContent = fmt(days.at(-1).date);
+all();
+</script>
